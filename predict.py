@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 from PIL import Image, ImageDraw
-import segmentation_models_pytorch as smp
 import numpy as np
 import cv2
-import os
-import random
 import json
 import numpy as np
 import tqdm
-import matplotlib.pyplot as plt
 import torch
-import torch.nn as nn
 import warnings
 warnings.filterwarnings(action='ignore')
 from modules.utils import seed_everything
@@ -58,7 +53,7 @@ def get_iou(mask1, mask2):
 
     return iou_score
 
-def compare_contour(sample_pred, threshold = 0.994026):
+def compare_contour(sample_pred):
     contours1, _  = cv2.findContours(sample_pred, 
                                 cv2.RETR_EXTERNAL, 
                                 #cv2.CHAIN_APPROX_SIMPLE)
@@ -92,22 +87,15 @@ def compare_contour(sample_pred, threshold = 0.994026):
     mask1 = contour_to_mask(polygon1)
     mask2 = contour_to_mask(polygon2)
 
-
-    # 두 알고리즘의 iou 차이가 threshold 이상인 이미지는 1 알고리즘(손실 적음), 아닌 이미지는 2 알고리즘
     diff = get_iou(mask1, mask2)
 
-    if diff < threshold:
-        polygon = polygon1
-        #print("CHAIN_APPROX_NONE")
-    else:
-        polygon = polygon2 
 
-    return polygon, diff , polygon1, polygon2
+    return diff , polygon1, polygon2
 
 
 if __name__ == "__main__":
 
-    DATA_PATH = "/DATA/FINAL_DATA"
+    DATA_PATH = "/DATA/Final_DATA"
     
     with open(DATA_PATH + "/task02_test/sample_submission.json", "r") as json_file:
         labels = json.load(json_file)
@@ -144,14 +132,11 @@ if __name__ == "__main__":
 
         sample_pred = sample_pred.astype(np.uint8)
         
-        polygon, diff, polygon1, polygon2 = compare_contour(sample_pred,  
-                                                            threshold = 0.98999)
+        diff, polygon1, polygon2 = compare_contour(sample_pred)
                                         
         diff_array.append(diff)
         polygon1s.append(polygon1)
         polygon2s.append(polygon2)
-
-        labels['annotations'][idx]['polygon1'] = polygon
         
     threshold = np.quantile(diff_array, 0.04).round(5)
     print(threshold)

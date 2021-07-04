@@ -1,24 +1,20 @@
 # -*- coding: utf-8 -*-
-import torch
-import numpy as np
-from PIL import Image, ImageDraw
-import tqdm
-import cv2
-import pandas as pd
-import os
-import random
-from sklearn.model_selection import KFold
-from tqdm import tqdm
 
+# import
 import os
 import sys
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+import random
+import torch
+from sklearn.model_selection import KFold
+
+#import custom
 modulde_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(modulde_path)
 
 from dataset import HairDatasetName
-
-
-
 
 def get_iou(grd, pred):
     grd = grd.reshape(-1)
@@ -48,13 +44,13 @@ def gen_cleandf(model_path,
             
             train_dataset = HairDatasetName(name_list = train_fold,
                 train = True,
-                dir_path = "/DATA/FINAL_DATA/task02_train/",
+                dir_path = "/DATA/Final_DATA/task02_train/",
                 preprocessing=None,
                 augmentation=None)
 
             valid_dataset = HairDatasetName(name_list = valid_fold,
                 train = True,
-                dir_path = "/DATA/FINAL_DATA/task02_train/",
+                dir_path = "/DATA/Final_DATA/task02_train/",
                 preprocessing=None,
                 augmentation=None)
            
@@ -86,8 +82,13 @@ def gen_cleandf(model_path,
                                 columns = ['image_name', 'iou'])
     
     total_scores = pd.concat([train_score, valid_score], axis = 0)
-    clean_df = total_scores[total_scores.iou > 0.7]
-    #clean_df = total_scores#[total_scores.iou > 0.001]
+
+    th = total_scores.sort_values(by='iou', ascending=False).iloc[186473, 1]
+
+    clean_df = total_scores[total_scores.iou > th]
+
+    print(clean_df.shape)
+
     return clean_df
 
 

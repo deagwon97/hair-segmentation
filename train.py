@@ -1,37 +1,19 @@
 # -*- coding: utf-8 -*-
 # for gen data
-import json
-import tqdm
 import os
-import sys
-from PIL import Image, ImageDraw
-
 # for train first model
 import torch
 import segmentation_models_pytorch as smp
-import numpy as np
-import pandas as pd
 import albumentations as albu
-import cv2
-import matplotlib.pyplot as plt
-import os
-import random
-import subprocess
-import numpy as np
-import tqdm
-import albumentations as albu
-import matplotlib.pyplot as plt
 import torch
-import torch.nn as nn
 from torch.optim import lr_scheduler
-from sklearn.model_selection import KFold
+
 import warnings
 warnings.filterwarnings(action='ignore')
 import os
 
 # import custom utils
 from modules.utils import gen_cleandf
-from modules.utils import get_iou
 from modules.utils import seed_everything
 from modules.train_fold import run
 from modules.gen_mask import generate_mask
@@ -39,12 +21,13 @@ from modules.gen_mask import generate_mask
 if __name__ == "__main__":
 
     # make mask-----------------------------------------------------
+    print("convert json to jpg...")
     generate_mask()
-    DATA_PATH = "/DATA/FINAL_DATA"
+    DATA_PATH = "/DATA/Final_DATA"
     # set image list-------------------------------------------------
     seed_everything(1015)
     trainlist = list(map(lambda x: x[:-4], 
-                    os.listdir(DATA_PATH + "/data/task02_train/images")))
+                    os.listdir(DATA_PATH + "/task02_train/images")))
     drop_ipynb = []
     for item in trainlist:
         if 'ipynb' not in item:
@@ -65,7 +48,7 @@ if __name__ == "__main__":
                                             max_w_size=20),
                                 ]
     CONFIG['fold']= 1
-    CONFIG['num_epochs']= 5
+    CONFIG['num_epochs']= 6
     CONFIG['batch_size']= 20
     CONFIG['model'] = "efficientnet-b4"
     CONFIG['pretrain'] = "imagenet"
@@ -76,9 +59,11 @@ if __name__ == "__main__":
     CONFIG['model_path'] = "./model"
 
     seed_everything(1015)
+    print("train first model...")
     run(trainlist, CONFIG, "first_model.pth")
     
     # predict frist model--------------------------------------------
+    print("get iou score ...")
     model_path = './model/first_model.pth'
     clean_df = gen_cleandf(model_path, 
                               DATA_PATH+"/task02_train/", 
@@ -89,5 +74,6 @@ if __name__ == "__main__":
     # run second_model
     trainlist = clean_df.image_name.values
     CONFIG['fold']= 0
+    print("train second model...")
     run(trainlist, CONFIG, "second_model.pth")
-    print("complete train all")
+    print("complete.")

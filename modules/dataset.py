@@ -1,22 +1,11 @@
 # -*- coding: utf-8 -*-
-# for gen data
-import json
-import tqdm
-import os
-import sys
-from PIL import Image, ImageDraw
+from PIL import Image
 
 # for train first model
 import torch
 import numpy as np
-import pandas as pd
 import albumentations as albu
-import cv2
-import os
-import random
-import subprocess
 import numpy as np
-import tqdm
 import torch
 import warnings
 warnings.filterwarnings(action='ignore')
@@ -53,8 +42,8 @@ class HairDataset(torch.utils.data.Dataset):
         # 읽어오기 -> numpy변환 -> 가운데만 선택
         image_name = self.name_list[index]
         if self.train == True:
-            image_path = self.dir_path+"images/" + image_name + ".jpg"
-            mask_path = self.dir_path+"mask/" + image_name + ".jpg"
+            image_path = self.dir_path + "images/" + image_name + ".jpg"
+            mask_path = "./data/mask/" + image_name + ".jpg"
 
         img = Image.open(image_path)
         img = np.array(img)
@@ -110,7 +99,7 @@ class HairDatasetName(torch.utils.data.Dataset):
         image_name = self.name_list[index]
         if self.train == True:
             image_path = self.dir_path+"images/" + image_name + ".jpg"
-            mask_path = self.dir_path+"mask/" + image_name + ".jpg"
+            mask_path = "./data/mask/" + image_name + ".jpg"
 
         img = Image.open(image_path)
         img = np.array(img)

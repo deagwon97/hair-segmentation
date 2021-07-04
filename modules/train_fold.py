@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
+
+# import library
 import torch
-import torch.nn as nn
-from torch.optim import lr_scheduler
 from sklearn.model_selection import KFold
 import segmentation_models_pytorch as smp
 import numpy as np
-import pandas as pd
-# import wandb
-
 import os
 import sys
+
+# import custom
 modulde_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(modulde_path)
-
 from dataset import HairDataset
 
 def run(trainlist, CONFIG, model_name):
@@ -47,13 +45,13 @@ def run(trainlist, CONFIG, model_name):
 
             train_dataset = HairDataset(name_list = train_fold,
                 train = True,
-                dir_path =  "/DATA/FINAL_DATA/task02_train/",
+                dir_path =  "/DATA/Final_DATA/task02_train/",
                 preprocessing=None,
                 augmentation=None)
 
             valid_dataset = HairDataset(name_list = valid_fold,
                 train = True,
-                dir_path =  "/DATA/FINAL_DATA/task02_train/",
+                dir_path =  "/DATA/Final_DATA/task02_train/",
                 preprocessing=None,
                 augmentation=None)
 
